@@ -1,0 +1,13 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "poe2-whispergogo",
+  "outputfilename": "poe2-whispergogo",
+  "frontend:install": "pnpm i",
+  "frontend:build": "pnpm build",
+  "frontend:dev:watcher": "pnpm dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Kittizz",
+    "email": "62899732+kittizz@users.noreply.github.com"
+  }
+}
