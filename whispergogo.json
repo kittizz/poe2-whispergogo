@@ -1,0 +1,19 @@
+{
+  "keywords": [
+    {
+      "Keyword": "test",
+      "Enable": true
+    },
+    {
+      "Keyword": "test2",
+      "Enable": false
+    },
+    {
+      "Keyword": "test3",
+      "Enable": true
+    }
+  ],
+  "ntfy": {
+    "topics": "kittizzPc"
+  }
+}
