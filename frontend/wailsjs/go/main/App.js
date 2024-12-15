@@ -6,8 +6,16 @@ export function BringToFront() {
   return window['go']['main']['App']['BringToFront']();
 }
 
+export function GetAlertStatus() {
+  return window['go']['main']['App']['GetAlertStatus']();
+}
+
 export function GetDeviceName() {
   return window['go']['main']['App']['GetDeviceName']();
+}
+
+export function GetGameStatus() {
+  return window['go']['main']['App']['GetGameStatus']();
 }
 
 export function GetKeywords() {
@@ -18,8 +26,16 @@ export function GetNtfyTopics() {
   return window['go']['main']['App']['GetNtfyTopics']();
 }
 
+export function ResetKeywords() {
+  return window['go']['main']['App']['ResetKeywords']();
+}
+
 export function ResetNtfyTopics() {
   return window['go']['main']['App']['ResetNtfyTopics']();
+}
+
+export function SetAlertStatus(arg1) {
+  return window['go']['main']['App']['SetAlertStatus'](arg1);
 }
 
 export function SetKeywords(arg1) {

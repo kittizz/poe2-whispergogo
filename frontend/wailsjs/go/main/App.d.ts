@@ -4,13 +4,21 @@ import {main} from '../models';
 
 export function BringToFront():Promise<void>;
 
+export function GetAlertStatus():Promise<boolean>;
+
 export function GetDeviceName():Promise<string>;
+
+export function GetGameStatus():Promise<boolean>;
 
 export function GetKeywords():Promise<Array<main.Keyword>>;
 
 export function GetNtfyTopics():Promise<string>;
 
+export function ResetKeywords():Promise<void>;
+
 export function ResetNtfyTopics():Promise<void>;
+
+export function SetAlertStatus(arg1:boolean):Promise<void>;
 
 export function SetKeywords(arg1:Array<main.Keyword>):Promise<void>;
 

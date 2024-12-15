@@ -2,120 +2,205 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
 )
 
-// findProcessByName searches for a process by name and returns its path.
-func findProcessByName(targetName string) (string, error) {
-	// Snapshot all processes
+const (
+	processCheckInterval = 5 * time.Second
+	fileReadInterval     = 1 * time.Second
+)
+
+type ProcessWatcher interface {
+	WatchProcess(ctx context.Context) error
+	GetProcessPath(pid uint32) (string, error)
+}
+
+type FileWatcher interface {
+	TailFile(ctx context.Context, filePath string) error
+}
+
+type DefaultProcessWatcher struct {
+	wg        sync.WaitGroup
+	msgStream chan string
+}
+
+type DefaultFileWatcher struct {
+	msgStream chan string
+}
+
+func NewProcessWatcher(msgStream chan string) ProcessWatcher {
+	return &DefaultProcessWatcher{
+		msgStream: msgStream,
+	}
+}
+
+func NewFileWatcher(msgStream chan string) FileWatcher {
+	return &DefaultFileWatcher{
+		msgStream: msgStream,
+	}
+}
+
+func (pw *DefaultProcessWatcher) WatchProcess(ctx context.Context) error {
+	isProcessRunning := false
+	fw := NewFileWatcher(pw.msgStream)
+
+	var fileWatcherCancel context.CancelFunc
+
+	pw.wg.Add(1)
+	go func() {
+		defer pw.wg.Done()
+		for {
+			select {
+			case <-ctx.Done():
+				if fileWatcherCancel != nil {
+					fileWatcherCancel()
+				}
+				return
+			default:
+				clientPath, err := pw.findProcessByName()
+				if err == nil && !isProcessRunning {
+					isProcessRunning = true
+					pw.wg.Add(1)
+
+					var fileCtx context.Context
+					fileCtx, fileWatcherCancel = context.WithCancel(ctx)
+
+					fmt.Printf("Found PoE Client.txt Path: %s\n", clientPath)
+
+					go func(path string) {
+						defer pw.wg.Done()
+						defer func() {
+							isProcessRunning = false
+							if fileWatcherCancel != nil {
+								fileWatcherCancel()
+								fileWatcherCancel = nil
+							}
+						}()
+
+						fmt.Println("Starting to tail Client.txt...")
+						if err := fw.TailFile(fileCtx, path); err != nil {
+							if err != context.Canceled {
+								fmt.Printf("Error tailing file: %v\n", err)
+							}
+						}
+					}(clientPath)
+
+				} else if err != nil && isProcessRunning {
+					fmt.Println("PoE process stopped, waiting for restart...")
+					if fileWatcherCancel != nil {
+						fileWatcherCancel()
+						fileWatcherCancel = nil
+					}
+					isProcessRunning = false
+				}
+				time.Sleep(processCheckInterval)
+			}
+		}
+	}()
+
+	return nil
+}
+
+func (fw *DefaultFileWatcher) TailFile(ctx context.Context, filePath string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("open file: %w", err)
+	}
+	defer file.Close()
+
+	if _, err := file.Seek(0, io.SeekEnd); err != nil {
+		return fmt.Errorf("seek to end: %w", err)
+	}
+
+	reader := bufio.NewReader(file)
+
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Println("Stopping file tail operation...")
+			return ctx.Err()
+		default:
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				if err == io.EOF {
+					select {
+					case <-ctx.Done():
+						return ctx.Err()
+					default:
+						time.Sleep(fileReadInterval)
+						continue
+					}
+				}
+				return fmt.Errorf("read file: %w", err)
+			}
+			select {
+			case fw.msgStream <- strings.TrimSpace(line):
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+	}
+}
+
+func (pw *DefaultProcessWatcher) findProcessByName() (string, error) {
 	snapshot, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
 	if err != nil {
-		return "", fmt.Errorf("could not create process snapshot: %w", err)
+		return "", fmt.Errorf("create process snapshot: %w", err)
 	}
 	defer windows.CloseHandle(snapshot)
 
 	var procEntry windows.ProcessEntry32
 	procEntry.Size = uint32(unsafe.Sizeof(procEntry))
 
-	// Iterate through the process list
-	err = windows.Process32First(snapshot, &procEntry)
-	if err != nil {
-		return "", fmt.Errorf("could not get first process: %w", err)
+	if err := windows.Process32First(snapshot, &procEntry); err != nil {
+		return "", fmt.Errorf("get first process: %w", err)
 	}
 
 	for {
 		processName := windows.UTF16ToString(procEntry.ExeFile[:])
-		if strings.EqualFold(processName, targetName) {
-			// Get executable path
-			path, err := getProcessPath(procEntry.ProcessID)
+		if strings.EqualFold(processName, POE2_PROCESS_NAME) {
+			path, err := pw.GetProcessPath(procEntry.ProcessID)
 			if err != nil {
-				return "", fmt.Errorf("error getting process path: %w", err)
+				return "", fmt.Errorf("get process path: %w", err)
 			}
-			return path, nil // Found the desired process
+
+			clientFilePath := filepath.Join(filepath.Dir(path), "logs", "Client.txt")
+			return clientFilePath, nil
 		}
 
-		// Move to the next process
 		if err := windows.Process32Next(snapshot, &procEntry); err != nil {
 			if err == windows.ERROR_NO_MORE_FILES {
-				break // No more processes
+				break
 			}
-			return "", fmt.Errorf("error iterating processes: %w", err)
+			return "", fmt.Errorf("iterate processes: %w", err)
 		}
 	}
-	return "", fmt.Errorf("process %s not found", targetName)
+	return "", fmt.Errorf("PoE process not found")
 }
 
-// getProcessPath retrieves the path of a process by its PID.
-func getProcessPath(pid uint32) (string, error) {
+func (pw *DefaultProcessWatcher) GetProcessPath(pid uint32) (string, error) {
 	handle, err := windows.OpenProcess(windows.PROCESS_QUERY_LIMITED_INFORMATION, false, pid)
 	if err != nil {
-		return "", fmt.Errorf("could not open process (PID: %d): %w", pid, err)
+		return "", fmt.Errorf("open process (PID: %d): %w", pid, err)
 	}
 	defer windows.CloseHandle(handle)
 
 	var buffer [windows.MAX_PATH]uint16
-	size := uint32(len(buffer)) // Size of buffer in characters
-	err = windows.QueryFullProcessImageName(handle, 0, &buffer[0], &size)
-	if err != nil {
-		return "", fmt.Errorf("could not get process image name: %w", err)
+	size := uint32(len(buffer))
+	if err := windows.QueryFullProcessImageName(handle, 0, &buffer[0], &size); err != nil {
+		return "", fmt.Errorf("get process image name: %w", err)
 	}
 	return windows.UTF16ToString(buffer[:]), nil
-}
-
-// tailFile continuously reads new lines from a file as they are written.
-func tailFile(filePath string, quit chan os.Signal) error {
-	// Open file in read-only mode
-	file, err := os.Open(filePath)
-	if err != nil {
-		return fmt.Errorf("could not open file: %w", err)
-	}
-	defer file.Close()
-
-	// Seek to the end of the file to ignore existing content
-	if _, err := file.Seek(0, io.SeekEnd); err != nil {
-		return fmt.Errorf("could not seek to end of file: %w", err)
-	}
-
-	reader := bufio.NewReader(file)
-	done := make(chan struct{})
-
-	// Goroutine to keep reading new lines from the file
-	go func() {
-		for {
-			select {
-			case <-done:
-				return
-			default:
-				// Attempt to read a new line
-				line, err := reader.ReadString('\n')
-				if err != nil {
-					if err == io.EOF {
-						// Wait a bit before re-checking for new lines
-						time.Sleep(1 * time.Second)
-					} else {
-						fmt.Printf("Error reading file: %v\n", err)
-						return
-					}
-				} else {
-					// Print the new line read from the file
-					fmt.Print(line)
-				}
-			}
-		}
-	}()
-
-	// Wait for quit signal and handle shutdown
-	<-quit
-	fmt.Println("Shutting down gracefully...")
-	close(done)
-	return nil
 }
 
 func getDeviceName() string {
@@ -124,5 +209,4 @@ func getDeviceName() string {
 		panic(fmt.Sprintf("Failed to get hostname: %v", err))
 	}
 	return hostname
-
 }

@@ -61,13 +61,19 @@ func (c *Config) autoInit() {
 }
 
 func (c *Config) setDefaults() {
+	c.defaultNtfyTopics()
+	c.defaultKeywords()
+
+}
+func (c *Config) defaultNtfyTopics() {
 	c.NtfyTopics = getDeviceName()
+}
+func (c *Config) defaultKeywords() {
 	c.Keywords = []Keyword{
 		{Keyword: "keyword1", Enable: true},
 		{Keyword: "keyword2", Enable: true},
 		// Add more default keywords as needed
 	}
-
 }
 
 func (c *Config) Save() error {

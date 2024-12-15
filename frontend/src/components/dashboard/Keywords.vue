@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from "vue"
+import { ResetKeywords } from "../../../wailsjs/go/main/App"
+import { useKeywordStore } from "@/stores/keyword"
+import { push } from "notivue"
 
-interface Keyword {
+export interface IKeyword {
 	text: string
 	enable: boolean
 	isEditing?: boolean
@@ -9,21 +12,26 @@ interface Keyword {
 	originalText?: string
 }
 
-const keywords = ref<Keyword[]>([
-	{ text: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", enable: true },
-	{ text: "xxxxxx", enable: true },
-	{ text: "xxxxxx", enable: false },
-])
+const keyword = useKeywordStore()
+const keywords = ref<IKeyword[]>([])
 
 const enableAll = ref(keywords.value.every((keyword) => keyword.enable))
-const newKeywordText = ref("")
 const isAdding = ref(false)
+
+onMounted(async () => {
+	await keyword.fetchKeywords()
+	keywords.value = keyword.keywords
+})
 
 watch(
 	keywords,
 	() => {
 		enableAll.value = keywords.value.every((keyword) => keyword.enable)
-		console.log(keywords.value)
+
+		const updateKeywords = keywords.value.filter(
+			(keyword) => !keyword.isNew && !keyword.isEditing
+		)
+		keyword.updateKeywords(updateKeywords)
 	},
 	{ deep: true }
 )
@@ -43,10 +51,11 @@ const startAddNew = () => {
 	})
 }
 
-const saveNew = (keyword: Keyword) => {
+const saveNew = (keyword: IKeyword) => {
 	if (keyword.text.trim()) {
 		keyword.isEditing = false
 		keyword.isNew = false
+		keyword.enable = true
 	} else {
 		keywords.value = keywords.value.filter((k) => !k.isNew)
 	}
@@ -58,20 +67,20 @@ const cancelNew = () => {
 	isAdding.value = false
 }
 
-const startEditing = (keyword: Keyword) => {
+const startEditing = (keyword: IKeyword) => {
 	keywords.value.forEach((k) => (k.isEditing = false))
 	keyword.originalText = keyword.text
 	keyword.isEditing = true
 }
 
-const saveEdit = (keyword: Keyword) => {
+const saveEdit = (keyword: IKeyword) => {
 	if (keyword.text.trim()) {
 		keyword.isEditing = false
 		delete keyword.originalText
 	}
 }
 
-const cancelEdit = (keyword: Keyword) => {
+const cancelEdit = (keyword: IKeyword) => {
 	if (keyword.originalText !== undefined) {
 		keyword.text = keyword.originalText
 		delete keyword.originalText
@@ -79,19 +88,24 @@ const cancelEdit = (keyword: Keyword) => {
 	keyword.isEditing = false
 }
 
-const deleteKeyword = (keywordToDelete: Keyword) => {
+const deleteKeyword = (keywordToDelete: IKeyword) => {
 	keywords.value = keywords.value.filter(
 		(keyword) => keyword !== keywordToDelete
 	)
 }
+const restore = async () => {
+	await keyword.resetKeywords()
+	keywords.value = keyword.keywords
+	push.warning("Keywords restored to default")
+}
 </script>
 
 <template>
-	<v-card class="pa-4">
+	<v-card class="pa-2">
 		<v-card-title class="text-h5">Keywords</v-card-title>
 
 		<v-card-text>
-			<v-table height="292px">
+			<v-table>
 				<thead>
 					<tr>
 						<th class="text-left" width="56px">
@@ -106,11 +120,18 @@ const deleteKeyword = (keywordToDelete: Keyword) => {
 						</th>
 						<th class="text-left">Keyword</th>
 						<th class="text-left" width="100px">
-							<v-btn
-								icon="mdi-plus"
-								@click="startAddNew"
-								:disabled="isAdding"
-							></v-btn>
+							<v-btn-group>
+								<v-btn
+									icon="mdi-plus"
+									@click="startAddNew"
+									:disabled="isAdding"
+								></v-btn>
+
+								<v-btn
+									icon="mdi-restore"
+									@click="restore"
+								></v-btn>
+							</v-btn-group>
 						</th>
 					</tr>
 				</thead>

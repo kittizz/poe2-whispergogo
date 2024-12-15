@@ -1,4 +1,15 @@
 {
-  "keywords": null,
+  "alert_status": false,
+  "dark_theme": false,
+  "keywords": [
+    {
+      "Keyword": "keyword1",
+      "Enable": true
+    },
+    {
+      "Keyword": "keyword2",
+      "Enable": true
+    }
+  ],
   "ntfy_topics": "kittizzPc"
 }

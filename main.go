@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"embed"
+	"fmt"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -13,6 +15,9 @@ type Ntfy string
 const (
 	NTFY_BASE_URL      Ntfy = "https://ntfy.sh"
 	NTFY_PREFIX_TOPICS Ntfy = "wpgogo"
+
+	POE2_PROCESS_NAME = "PathOfExileSteam.exe" // Process name to search for
+
 )
 
 var (
@@ -30,6 +35,29 @@ var assets embed.FS
 
 func main() {
 	cfg := GetConfig()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	msgChan := make(chan string, 100) // buffer size 100
+
+	pw := NewProcessWatcher(msgChan)
+	if err := pw.WatchProcess(ctx); err != nil {
+		fmt.Printf("Error watching process: %v\n", err)
+		return
+	}
+	go func() {
+		for logLine := range msgChan {
+			msg, err := ParseChatMessage(logLine)
+			if err != nil {
+				fmt.Printf("Error parsing message: %v\n", err)
+				continue
+			}
+
+			fmt.Printf("%v> Type: %s, User: %s, Content: %s\n",
+				msg.Timestamp,
+				msg.MessageType, msg.Username, msg.Content)
+		}
+	}()
 
 	// Create an instance of the app structure
 	app := NewApp(cfg)
@@ -58,6 +86,6 @@ func main() {
 	})
 
 	if err != nil {
-		println("Error:", err.Error())
+		fmt.Println("Error:", err.Error())
 	}
 }

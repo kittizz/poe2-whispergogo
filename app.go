@@ -11,12 +11,15 @@ import (
 type App struct {
 	ctx    context.Context
 	config *Config
+
+	GameStatus *bool
 }
 
 // NewApp creates a new App application struct
 func NewApp(config *Config) *App {
 	return &App{
-		config: config,
+		config:     config,
+		GameStatus: new(bool),
 	}
 }
 
@@ -57,10 +60,25 @@ func (a *App) SetNtfyTopics(topics string) {
 }
 
 func (a *App) ResetNtfyTopics() {
-	a.config.setDefaults()
+	a.config.defaultNtfyTopics()
+	a.config.Save()
+}
+
+func (a *App) ResetKeywords() {
+	a.config.defaultKeywords()
 	a.config.Save()
 }
 
 func (a *App) GetDeviceName() string {
 	return getDeviceName()
+}
+func (a *App) GetAlertStatus() bool {
+	return a.config.AlertStatus
+}
+func (a *App) SetAlertStatus(status bool) {
+	a.config.AlertStatus = status
+	a.config.Save()
+}
+func (a *App) GetGameStatus() bool {
+	return *a.GameStatus
 }
