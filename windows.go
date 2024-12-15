@@ -117,3 +117,12 @@ func tailFile(filePath string, quit chan os.Signal) error {
 	close(done)
 	return nil
 }
+
+func getDeviceName() string {
+	hostname, err := os.Hostname()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to get hostname: %v", err))
+	}
+	return hostname
+
+}

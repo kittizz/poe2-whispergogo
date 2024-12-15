@@ -24,8 +24,8 @@ const messages = ref<ChatMessage[]>([
 </script>
 
 <template>
-	<v-card>
-		<v-card-title class="text-h5 pa-4">Chat</v-card-title>
+	<v-card class="pa-4">
+		<v-card-title class="text-h5">Chat</v-card-title>
 
 		<v-card-text>
 			<v-card variant="outlined" class="pa-4">

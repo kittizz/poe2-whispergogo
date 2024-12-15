@@ -3,16 +3,18 @@
 <template>
 	<v-container fluid>
 		<v-row>
-			<v-col cols="6">
+			<v-col cols="5">
 				<WhisperGoGo />
 			</v-col>
-			<v-col col="8">
-				<v-col>
-					<Chat />
-				</v-col>
-				<v-col>
-					<Keywords />
-				</v-col>
+			<v-col cols="7">
+				<v-row>
+					<v-col cols="12">
+						<Chat />
+					</v-col>
+					<v-col cols="12">
+						<Keywords />
+					</v-col>
+				</v-row>
 			</v-col>
 		</v-row>
 	</v-container>

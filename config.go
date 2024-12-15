@@ -16,9 +16,12 @@ var (
 )
 
 type Config struct {
-	v          *viper.Viper
-	mu         sync.RWMutex
-	NtfyTopics string    `mapstructure:"ntfy.topics"`
+	v           *viper.Viper
+	mu          sync.RWMutex
+	AlertStatus bool `mapstructure:"alert_status"`
+	DarkTheme   bool `mapstructure:"dark_theme"`
+
+	NtfyTopics string    `mapstructure:"ntfy_topics"`
 	Keywords   []Keyword `mapstructure:"keywords"`
 }
 type Keyword struct {
@@ -58,11 +61,12 @@ func (c *Config) autoInit() {
 }
 
 func (c *Config) setDefaults() {
-	hostname, err := os.Hostname()
-	if err != nil {
-		panic(fmt.Sprintf("Failed to get hostname: %v", err))
+	c.NtfyTopics = getDeviceName()
+	c.Keywords = []Keyword{
+		{Keyword: "keyword1", Enable: true},
+		{Keyword: "keyword2", Enable: true},
+		// Add more default keywords as needed
 	}
-	c.NtfyTopics = hostname
 
 }
 
@@ -71,8 +75,10 @@ func (c *Config) Save() error {
 	defer c.mu.Unlock()
 
 	if err := c.v.MergeConfigMap(map[string]interface{}{
-		"ntfy.topics": c.NtfyTopics,
-		"keywords":    c.Keywords,
+		"ntfy_topics":  c.NtfyTopics,
+		"keywords":     c.Keywords,
+		"alert_status": c.AlertStatus,
+		"dark_theme":   c.DarkTheme,
 	}); err != nil {
 		return fmt.Errorf("failed to merge config: %w", err)
 	}
