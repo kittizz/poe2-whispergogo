@@ -7,7 +7,7 @@ on:
 
 jobs:
     release:
-        runs-on: windows-latest # หรือ OS ที่ต้องการ build
+        runs-on: ubuntu-latest # เปลี่ยนจาก windows-latest เป็น ubuntu-latest
         steps:
             - uses: actions/checkout@v3
 
