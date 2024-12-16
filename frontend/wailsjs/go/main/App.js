@@ -10,8 +10,12 @@ export function GetAlertStatus() {
   return window['go']['main']['App']['GetAlertStatus']();
 }
 
-export function GetDeviceName() {
-  return window['go']['main']['App']['GetDeviceName']();
+export function GetAlertType() {
+  return window['go']['main']['App']['GetAlertType']();
+}
+
+export function GetChatFilters() {
+  return window['go']['main']['App']['GetChatFilters']();
 }
 
 export function GetGameStatus() {
@@ -22,26 +26,30 @@ export function GetKeywords() {
   return window['go']['main']['App']['GetKeywords']();
 }
 
-export function GetNtfyTopics() {
-  return window['go']['main']['App']['GetNtfyTopics']();
+export function GetTelegramChatID() {
+  return window['go']['main']['App']['GetTelegramChatID']();
 }
 
 export function ResetKeywords() {
   return window['go']['main']['App']['ResetKeywords']();
 }
 
-export function ResetNtfyTopics() {
-  return window['go']['main']['App']['ResetNtfyTopics']();
-}
-
 export function SetAlertStatus(arg1) {
   return window['go']['main']['App']['SetAlertStatus'](arg1);
+}
+
+export function SetAlertType(arg1) {
+  return window['go']['main']['App']['SetAlertType'](arg1);
+}
+
+export function SetChatFilters(arg1) {
+  return window['go']['main']['App']['SetChatFilters'](arg1);
 }
 
 export function SetKeywords(arg1) {
   return window['go']['main']['App']['SetKeywords'](arg1);
 }
 
-export function SetNtfyTopics(arg1) {
-  return window['go']['main']['App']['SetNtfyTopics'](arg1);
+export function SetTelegramChatID(arg1) {
+  return window['go']['main']['App']['SetTelegramChatID'](arg1);
 }

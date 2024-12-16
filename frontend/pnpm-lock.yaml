@@ -8,15 +8,15 @@ importers:
 
   .:
     dependencies:
-      '@chenfengyuan/vue-qrcode':
-        specifier: '2'
-        version: 2.0.0(qrcode@1.5.4)(vue@3.5.13(typescript@5.6.3))
       '@mdi/font':
         specifier: 7.4.47
         version: 7.4.47
       core-js:
         specifier: ^3.37.1
         version: 3.39.0
+      dayjs:
+        specifier: ^1.11.13
+        version: 1.11.13
       kebab-case:
         specifier: ^2.0.1
         version: 2.0.1
@@ -127,12 +127,6 @@ packages:
 
   '@bufbuild/protobuf@2.2.3':
     resolution: {integrity: sha512-tFQoXHJdkEOSwj5tRIZSPNUuXK3RaR7T1nUrPgbYX1pUbvqqaaZAsfo+NXBPsz5rZMSKVFrgK1WL8Q/MSLvprg==}
-
-  '@chenfengyuan/vue-qrcode@2.0.0':
-    resolution: {integrity: sha512-33Cfr0zjbc3Dd8d5b1IgzXRAgXH0c2Gv19VI4snS25V/x9Z41eg769tC+Us1x+vqgQQhgD5YUjLnkpkrQfeMSw==}
-    peerDependencies:
-      qrcode: ^1.5.0
-      vue: ^3.0.0
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -710,6 +704,9 @@ packages:
 
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+
+  dayjs@1.11.13:
+    resolution: {integrity: sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==}
 
   de-indent@1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==}
@@ -1657,11 +1654,6 @@ snapshots:
 
   '@bufbuild/protobuf@2.2.3': {}
 
-  '@chenfengyuan/vue-qrcode@2.0.0(qrcode@1.5.4)(vue@3.5.13(typescript@5.6.3))':
-    dependencies:
-      qrcode: 1.5.4
-      vue: 3.5.13(typescript@5.6.3)
-
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
 
@@ -2190,6 +2182,8 @@ snapshots:
   cssesc@3.0.0: {}
 
   csstype@3.1.3: {}
+
+  dayjs@1.11.13: {}
 
   de-indent@1.0.2: {}
 

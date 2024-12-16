@@ -1,0 +1,32 @@
+version: 2
+before:
+    hooks:
+        - wails build
+builds:
+    - skip: true # ข้าม build process ของ goreleaser
+
+archives:
+    - format: tar.gz
+      name_template: >-
+          {{ .ProjectName }}_
+          {{- title .Os }}_
+          {{- if eq .Arch "amd64" }}x86_64
+          {{- else if eq .Arch "386" }}i386
+          {{- else }}{{ .Arch }}{{ end }}
+          {{- if .Arm }}v{{ .Arm }}{{ end }}
+      files:
+          - build/bin/* # เพิ่ม path ที่เก็บ binary จาก wails build
+      format_overrides:
+          - goos: windows
+            format: zip
+
+changelog:
+    sort: asc
+    filters:
+        exclude:
+            - '^docs:'
+            - '^test:'
+
+release:
+    footer: |
+        Released by GoReleaser

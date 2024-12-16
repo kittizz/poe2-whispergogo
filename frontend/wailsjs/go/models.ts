@@ -1,9 +1,5 @@
 export namespace main {
 	
-	export enum Ntfy {
-	    NTFY_BASE_URL = "https://ntfy.sh",
-	    NTFY_PREFIX_TOPICS = "wpgogo",
-	}
 	export class Keyword {
 	    Keyword: string;
 	    Enable: boolean;
@@ -16,6 +12,20 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.Keyword = source["Keyword"];
 	        this.Enable = source["Enable"];
+	    }
+	}
+	export class VerifyChatResponse {
+	    chat_id: string;
+	    valid: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new VerifyChatResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.chat_id = source["chat_id"];
+	        this.valid = source["valid"];
 	    }
 	}
 

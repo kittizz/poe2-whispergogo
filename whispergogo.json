@@ -1,15 +1,19 @@
 {
-  "alert_status": false,
+  "alert_status": true,
+  "alert_type": "chat_filter",
+  "chat_filters": [
+    "whisper"
+  ],
   "dark_theme": false,
   "keywords": [
     {
-      "Keyword": "keyword1",
+      "Keyword": "สวัสดี เราต้องการซื้อ",
       "Enable": true
     },
     {
-      "Keyword": "keyword2",
+      "Keyword": "Hi, I would like to buy your",
       "Enable": true
     }
   ],
-  "ntfy_topics": "kittizzPc"
+  "telegram_chat_id": "1301204113"
 }

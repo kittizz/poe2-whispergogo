@@ -1,0 +1,28 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - 'v*'
+
+jobs:
+    release:
+        runs-on: windows-latest # หรือ OS ที่ต้องการ build
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set up Go
+              uses: actions/setup-go@v4
+
+            - name: Install Wails
+              run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+            - name: Build
+              run: wails build
+
+            - name: Create Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: build/bin/* # ปรับ path ตาม output ของ wails
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -21,7 +21,7 @@ const (
 )
 
 type ProcessWatcher interface {
-	WatchProcess(ctx context.Context) error
+	WatchProcess(ctx context.Context, gameStatus *bool) error
 	GetProcessPath(pid uint32) (string, error)
 }
 
@@ -30,29 +30,28 @@ type FileWatcher interface {
 }
 
 type DefaultProcessWatcher struct {
-	wg        sync.WaitGroup
-	msgStream chan string
+	wg         sync.WaitGroup
+	lineStream chan string
 }
 
 type DefaultFileWatcher struct {
-	msgStream chan string
+	lineStream chan string
 }
 
-func NewProcessWatcher(msgStream chan string) ProcessWatcher {
+func NewProcessWatcher(lineStream chan string) ProcessWatcher {
 	return &DefaultProcessWatcher{
-		msgStream: msgStream,
+		lineStream: lineStream,
 	}
 }
 
-func NewFileWatcher(msgStream chan string) FileWatcher {
+func NewFileWatcher(lineStream chan string) FileWatcher {
 	return &DefaultFileWatcher{
-		msgStream: msgStream,
+		lineStream: lineStream,
 	}
 }
 
-func (pw *DefaultProcessWatcher) WatchProcess(ctx context.Context) error {
-	isProcessRunning := false
-	fw := NewFileWatcher(pw.msgStream)
+func (pw *DefaultProcessWatcher) WatchProcess(ctx context.Context, isProcessRunning *bool) error {
+	fw := NewFileWatcher(pw.lineStream)
 
 	var fileWatcherCancel context.CancelFunc
 
@@ -68,8 +67,8 @@ func (pw *DefaultProcessWatcher) WatchProcess(ctx context.Context) error {
 				return
 			default:
 				clientPath, err := pw.findProcessByName()
-				if err == nil && !isProcessRunning {
-					isProcessRunning = true
+				if err == nil && !*isProcessRunning {
+					*isProcessRunning = true
 					pw.wg.Add(1)
 
 					var fileCtx context.Context
@@ -80,7 +79,7 @@ func (pw *DefaultProcessWatcher) WatchProcess(ctx context.Context) error {
 					go func(path string) {
 						defer pw.wg.Done()
 						defer func() {
-							isProcessRunning = false
+							*isProcessRunning = false
 							if fileWatcherCancel != nil {
 								fileWatcherCancel()
 								fileWatcherCancel = nil
@@ -95,13 +94,13 @@ func (pw *DefaultProcessWatcher) WatchProcess(ctx context.Context) error {
 						}
 					}(clientPath)
 
-				} else if err != nil && isProcessRunning {
+				} else if err != nil && *isProcessRunning {
 					fmt.Println("PoE process stopped, waiting for restart...")
 					if fileWatcherCancel != nil {
 						fileWatcherCancel()
 						fileWatcherCancel = nil
 					}
-					isProcessRunning = false
+					*isProcessRunning = false
 				}
 				time.Sleep(processCheckInterval)
 			}
@@ -144,7 +143,7 @@ func (fw *DefaultFileWatcher) TailFile(ctx context.Context, filePath string) err
 				return fmt.Errorf("read file: %w", err)
 			}
 			select {
-			case fw.msgStream <- strings.TrimSpace(line):
+			case fw.lineStream <- strings.TrimSpace(line):
 			case <-ctx.Done():
 				return ctx.Err()
 			}
@@ -201,12 +200,4 @@ func (pw *DefaultProcessWatcher) GetProcessPath(pid uint32) (string, error) {
 		return "", fmt.Errorf("get process image name: %w", err)
 	}
 	return windows.UTF16ToString(buffer[:]), nil
-}
-
-func getDeviceName() string {
-	hostname, err := os.Hostname()
-	if err != nil {
-		panic(fmt.Sprintf("Failed to get hostname: %v", err))
-	}
-	return hostname
 }

@@ -6,20 +6,24 @@ export function BringToFront():Promise<void>;
 
 export function GetAlertStatus():Promise<boolean>;
 
-export function GetDeviceName():Promise<string>;
+export function GetAlertType():Promise<main.AlertType>;
+
+export function GetChatFilters():Promise<Array<main.ChatType>>;
 
 export function GetGameStatus():Promise<boolean>;
 
 export function GetKeywords():Promise<Array<main.Keyword>>;
 
-export function GetNtfyTopics():Promise<string>;
+export function GetTelegramChatID():Promise<string>;
 
 export function ResetKeywords():Promise<void>;
 
-export function ResetNtfyTopics():Promise<void>;
-
 export function SetAlertStatus(arg1:boolean):Promise<void>;
+
+export function SetAlertType(arg1:main.AlertType):Promise<void>;
+
+export function SetChatFilters(arg1:Array<main.ChatType>):Promise<void>;
 
 export function SetKeywords(arg1:Array<main.Keyword>):Promise<void>;
 
-export function SetNtfyTopics(arg1:string):Promise<void>;
+export function SetTelegramChatID(arg1:string):Promise<main.VerifyChatResponse>;

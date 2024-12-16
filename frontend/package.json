@@ -12,9 +12,9 @@
 		"lint": "eslint . --fix"
 	},
 	"dependencies": {
-		"@chenfengyuan/vue-qrcode": "2",
 		"@mdi/font": "7.4.47",
 		"core-js": "^3.37.1",
+		"dayjs": "^1.11.13",
 		"kebab-case": "^2.0.1",
 		"notivue": "^2.4.5",
 		"qrcode": "1",
