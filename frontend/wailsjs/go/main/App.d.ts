@@ -16,6 +16,8 @@ export function GetKeywords():Promise<Array<main.Keyword>>;
 
 export function GetTelegramChatID():Promise<string>;
 
+export function OpenTelegramLink():Promise<void>;
+
 export function ResetKeywords():Promise<void>;
 
 export function SetAlertStatus(arg1:boolean):Promise<void>;

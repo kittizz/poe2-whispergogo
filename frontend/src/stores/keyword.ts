@@ -6,7 +6,7 @@ import {
 	SetKeywords,
 	ResetKeywords,
 } from "../../wailsjs/go/main/App"
-import type { IKeyword } from "@/components/dashboard/Keywords.vue"
+import type { IKeyword } from "@/types/keyword"
 
 export const useKeywordStore = defineStore("keyword", {
 	state: () => ({

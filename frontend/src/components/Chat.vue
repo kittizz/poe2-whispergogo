@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue"
-import { EventsOn, EventsOff } from "../../../wailsjs/runtime"
+import { EventsOn, EventsOff } from "../../wailsjs/runtime"
 import dayjs from "dayjs"
 
 import { ChatType, type ChatMessage } from "@/types/chat"
@@ -68,19 +68,25 @@ onUnmounted(() => {
 
 <template>
 	<v-card class="pa-2">
-		<v-card-title class="text-h5">Chat</v-card-title>
+		<v-card-title class="text-h6">Chat</v-card-title>
 
-		<v-card-text>
+		<v-card-text class="pt-2">
+			<p class="text-caption font-italic mb-2">
+				This section displays the game's chat log in real time. Select
+				tabs to filter different types of chat messages.
+			</p>
 			<v-btn-toggle
 				v-model="chat.filters"
 				multiple
-				class="d-flex flex-wrap gap-2"
+				density="compact"
+				class="d-flex flex-wrap gap-1"
 			>
 				<v-btn
 					v-for="buttontype in buttons"
 					:key="buttontype"
 					:value="buttontype"
 					variant="outlined"
+					size="small"
 					class="flex-grow-1"
 					:class="{
 						'bg-teal': chat.filters.includes(buttontype),
@@ -90,24 +96,30 @@ onUnmounted(() => {
 				</v-btn>
 			</v-btn-toggle>
 
-			<v-card variant="tonal" class="my-2">
+			<v-card variant="tonal" class="mt-2">
 				<div
-					class="chat-messages px-2 bg-grey-darken-4"
+					class="chat-messages pa-1 bg-grey-darken-4"
 					ref="chatContainer"
 				>
-					<div v-for="(message, index) in messages" :key="index">
-						<div class="d-flex justify-space-between">
-							<div>
-								<span class="font-weight-bold me-2">
+					<div
+						v-for="(message, index) in messages"
+						:key="index"
+						class="message-line"
+					>
+						<div class="d-flex justify-space-between gap-2">
+							<div class="message-content">
+								<span class="font-weight-bold me-1 text-body-2">
 									{{
 										message.Username
 											? message.Username
 											: message.MessageType
 									}}:
 								</span>
-								<span>{{ message.Content }}</span>
+								<span class="text-body-2">{{
+									message.Content
+								}}</span>
 							</div>
-							<span class="text-caption">
+							<span class="text-caption text-grey">
 								{{
 									dayjs(message.Timestamp).format("HH:mm:ss")
 								}}
@@ -119,9 +131,25 @@ onUnmounted(() => {
 		</v-card-text>
 	</v-card>
 </template>
+
 <style scoped>
 .chat-messages {
-	height: 250px;
+	height: 200px;
 	overflow-y: auto;
+}
+
+.message-line {
+	padding: 2px 0;
+}
+
+.message-content {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	flex: 1;
+}
+
+:deep(.v-btn-toggle .v-btn) {
+	min-width: auto;
+	padding: 0 8px;
 }
 </style>

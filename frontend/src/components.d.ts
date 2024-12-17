@@ -7,12 +7,12 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AppFooter: typeof import('./components/app/AppFooter.vue')['default']
-    AppNavber: typeof import('./components/app/AppNavber.vue')['default']
-    Chat: typeof import('./components/dashboard/Chat.vue')['default']
-    Keywords: typeof import('./components/dashboard/Keywords.vue')['default']
+    AppFooter: typeof import('./components/AppFooter.vue')['default']
+    AppNavber: typeof import('./components/AppNavber.vue')['default']
+    Chat: typeof import('./components/Chat.vue')['default']
+    Keywords: typeof import('./components/Keywords.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    WhisperGoGo: typeof import('./components/dashboard/WhisperGoGo.vue')['default']
+    WhisperGoGo: typeof import('./components/WhisperGoGo.vue')['default']
   }
 }

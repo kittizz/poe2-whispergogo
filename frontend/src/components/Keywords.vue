@@ -1,16 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from "vue"
-import { ResetKeywords } from "../../../wailsjs/go/main/App"
 import { useKeywordStore } from "@/stores/keyword"
 import { push } from "notivue"
-
-export interface IKeyword {
-	text: string
-	enable: boolean
-	isEditing?: boolean
-	isNew?: boolean
-	originalText?: string
-}
+import type { IKeyword } from "@/types/keyword"
 
 const keyword = useKeywordStore()
 const keywords = ref<IKeyword[]>([])
@@ -99,35 +91,41 @@ const restore = async () => {
 	push.warning("Keywords restored to default")
 }
 </script>
-
 <template>
 	<v-card class="pa-2">
-		<v-card-title class="text-h5">Keywords</v-card-title>
+		<v-card-title class="text-h6">Keywords</v-card-title>
 
 		<v-card-text>
-			<v-table>
+			<p class="text-caption font-italic mb-2">
+				Set the keywords you want to monitor in chat. If a set keyword
+				is detected, an alert will be sent to your Telegram chat.
+			</p>
+			<v-table density="compact">
 				<thead>
 					<tr>
-						<th class="text-left" width="56px">
+						<th class="text-left px-2" width="40px">
 							<div
 								class="d-flex align-center justify-space-between"
 							>
 								<v-checkbox-btn
 									v-model="enableAll"
 									@click="toggleEnableAll"
+									density="compact"
 								></v-checkbox-btn>
 							</div>
 						</th>
 						<th class="text-left">Keyword</th>
-						<th class="text-left" width="100px">
+						<th class="text-left" width="80px">
 							<v-btn-group>
 								<v-btn
+									size="small"
 									icon="mdi-plus"
 									@click="startAddNew"
 									:disabled="isAdding"
 								></v-btn>
 
 								<v-btn
+									size="small"
 									icon="mdi-restore"
 									@click="restore"
 								></v-btn>
@@ -137,10 +135,11 @@ const restore = async () => {
 				</thead>
 				<tbody>
 					<tr v-for="(keyword, index) in keywords" :key="index">
-						<td class="checkbox-column">
+						<td class="checkbox-column px-2">
 							<v-checkbox-btn
 								v-model="keyword.enable"
 								:disabled="keyword.isNew"
+								density="compact"
 							></v-checkbox-btn>
 						</td>
 						<td class="keyword-column">
@@ -151,10 +150,11 @@ const restore = async () => {
 							</template>
 							<v-text-field
 								v-else
-								v-model="keyword.text"
 								density="compact"
+								v-model="keyword.text"
 								variant="underlined"
 								autofocus
+								hide-details
 								@keyup.enter="
 									keyword.isNew
 										? saveNew(keyword)
@@ -166,10 +166,12 @@ const restore = async () => {
 							<template v-if="!keyword.isEditing">
 								<v-btn-group>
 									<v-btn
+										size="small"
 										icon="mdi-pencil"
 										@click="startEditing(keyword)"
 									></v-btn>
 									<v-btn
+										size="small"
 										icon="mdi-delete"
 										@click="deleteKeyword(keyword)"
 									></v-btn>
@@ -178,6 +180,7 @@ const restore = async () => {
 							<template v-else>
 								<v-btn-group>
 									<v-btn
+										size="small"
 										icon="mdi-check"
 										@click="
 											keyword.isNew
@@ -187,6 +190,7 @@ const restore = async () => {
 										:disabled="!keyword.text.trim()"
 									></v-btn>
 									<v-btn
+										size="small"
 										icon="mdi-close"
 										@click="
 											keyword.isNew
@@ -206,35 +210,35 @@ const restore = async () => {
 
 <style scoped>
 .checkbox-column {
-	width: 56px;
-	min-width: 56px;
+	width: 40px;
+	min-width: 40px;
 	vertical-align: top;
-	padding-top: 12px !important;
+	padding-top: 8px !important;
 }
 
 .keyword-column {
 	vertical-align: top;
-	padding: 12px 16px !important;
+	padding: 8px 12px !important;
 }
 
 .action-column {
-	width: 100px;
-	min-width: 100px;
+	width: 80px;
+	min-width: 80px;
 	vertical-align: top;
-	padding-top: 12px !important;
+	padding-top: 8px !important;
 }
 
 .keyword-text {
 	word-wrap: break-word;
 	white-space: pre-wrap;
-	line-height: 1.5;
-	min-height: 40px;
+	line-height: 1.2;
+	min-height: 32px;
 	display: flex;
 	align-items: center;
 }
 
 :deep(.v-table .v-table__wrapper > table > tbody > tr > td) {
 	height: auto;
-	min-height: 48px;
+	min-height: 40px;
 }
 </style>

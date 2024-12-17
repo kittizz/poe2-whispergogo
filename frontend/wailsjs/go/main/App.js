@@ -30,6 +30,10 @@ export function GetTelegramChatID() {
   return window['go']['main']['App']['GetTelegramChatID']();
 }
 
+export function OpenTelegramLink() {
+  return window['go']['main']['App']['OpenTelegramLink']();
+}
+
 export function ResetKeywords() {
   return window['go']['main']['App']['ResetKeywords']();
 }

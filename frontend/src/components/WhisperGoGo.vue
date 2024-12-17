@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue"
+import { ref, watch, onMounted, handleError } from "vue"
 import PoE2Logo from "@/assets/poe2-logo.png"
 import TGQrcode from "@/assets/tgqrcode.png"
 import { push } from "notivue"
 import { useAppStore } from "@/stores/app"
+import { OpenTelegramLink } from "../../wailsjs/go/main/App"
 
 const app = useAppStore()
 const telegram_chatid = ref("")
@@ -53,6 +54,9 @@ const handleTelegramChatID = async () => {
 		}
 	}
 }
+const handleTelegramLink = () => {
+	OpenTelegramLink()
+}
 </script>
 
 <template>
@@ -69,7 +73,7 @@ const handleTelegramChatID = async () => {
 			</v-btn>
 		</v-card-title>
 
-		<v-card-text class="text-center">
+		<v-card-text>
 			<div class="d-flex align-center justify-center pa-2">
 				<v-img :src="PoE2Logo" max-width="100" class="mr-4" />
 				<div>
@@ -86,6 +90,11 @@ const handleTelegramChatID = async () => {
 				<v-radio label="both" value="both"></v-radio>
 				<v-radio label="chat filter" value="chat_filter"></v-radio>
 				<v-radio label="keyword" value="keyword"></v-radio>
+				<p class="text-caption font-italic">
+					Select the type of alerts you want to receive: chat filter
+					(specific triggers from game chat) or keyword (specific
+					words you set).
+				</p>
 			</v-radio-group>
 
 			<v-text-field
@@ -112,13 +121,29 @@ const handleTelegramChatID = async () => {
 				</template>
 			</v-text-field>
 
-			<div class="d-flex justify-center align-center my-4">
-				<v-img :src="TGQrcode" height="200" />
+			<p class="text-caption font-italic">
+				Enter your Telegram Chat ID to link the notifications to this
+				Telegram chat. Use the instructions below to retrieve your Chat
+				ID.
+			</p>
+
+			<div class="justify-center align-center text-center my-4">
+				<v-img :src="TGQrcode" height="150" />
+				<br />
+				<a
+					class="text-decoration-none"
+					href="#"
+					@click="handleTelegramLink"
+				>
+					https://t.me/whispergogo_bot
+				</a>
 			</div>
-			<div>
-				Scan QR code with your mobile phone to subscribe for
-				notifications
-			</div>
+
+			<p class="text-caption font-italic">
+				Scan the QR code or search for @WHISPERGOGO_BOT on Telegram.
+				After adding the bot, use
+				<b class="text-blue">/start</b> to receive your Chat ID.
+			</p>
 		</v-card-text>
 	</v-card>
 </template>

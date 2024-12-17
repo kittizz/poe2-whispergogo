@@ -177,3 +177,7 @@ func (a *App) SetTelegramChatID(chatid string) *VerifyChatResponse {
 
 	return verifyChatRes
 }
+
+func (a *App) OpenTelegramLink() {
+	runtime.BrowserOpenURL(a.ctx, "https://t.me/whispergogo_bot")
+}

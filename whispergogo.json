@@ -1,6 +1,6 @@
 {
   "alert_status": true,
-  "alert_type": "chat_filter",
+  "alert_type": "both",
   "chat_filters": [
     "whisper"
   ],
