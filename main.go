@@ -13,8 +13,13 @@ import (
 
 const (
 	WHISPERGOGO_BASE_URL string = "https://whispergogo-server.xver.cloud"
+)
 
-	POE2_PROCESS_NAME = "PathOfExileSteam.exe"
+var (
+	POE2_PROCESS_NAMES = []string{
+		"PathOfExileSteam.exe",
+		"PathOfExile_KG.exe",
+	}
 )
 
 //go:embed all:frontend/dist
@@ -44,7 +49,7 @@ func main() {
 	err = wails.Run(&options.App{
 		Title:     "WhisperGoGo | Path Of Exile 2",
 		MinWidth:  1300,
-		MinHeight: 850,
+		MinHeight: 900,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

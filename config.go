@@ -30,8 +30,8 @@ type AlertType string
 
 const (
 	AlertTypeBoth       AlertType = "both"
-	AlertTypeChatFilter           = "chat_filter"
-	AlertTypeKeyword              = "keyword"
+	AlertTypeChatFilter AlertType = "chat_filter"
+	AlertTypeKeyword    AlertType = "keyword"
 )
 
 type Keyword struct {
@@ -103,6 +103,8 @@ func (c *Config) defaultKeywords() {
 		// {Keyword: "(แท็บ", Enable: true},
 		// {Keyword: "ตำแหน่ง: ซ้าย", Enable: true},
 		{Keyword: "Hi, I would like to buy your", Enable: true},
+		{Keyword: "Здравствуйте, хочу купить у вас", Enable: true},
+		{Keyword: "안녕하세요", Enable: true},
 		// {Keyword: `(stash tab "`, Enable: true},
 		// {Keyword: `position: left`, Enable: true},
 	}

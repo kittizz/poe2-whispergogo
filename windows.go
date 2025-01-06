@@ -167,14 +167,17 @@ func (pw *DefaultProcessWatcher) findProcessByName() (string, error) {
 
 	for {
 		processName := windows.UTF16ToString(procEntry.ExeFile[:])
-		if strings.EqualFold(processName, POE2_PROCESS_NAME) {
-			path, err := pw.GetProcessPath(procEntry.ProcessID)
-			if err != nil {
-				return "", fmt.Errorf("get process path: %w", err)
-			}
+		// เช็คว่า process name ตรงกับตัวใดตัวหนึ่งใน slice หรือไม่
+		for _, poeProcessName := range POE2_PROCESS_NAMES {
+			if strings.EqualFold(processName, poeProcessName) {
+				path, err := pw.GetProcessPath(procEntry.ProcessID)
+				if err != nil {
+					return "", fmt.Errorf("get process path: %w", err)
+				}
 
-			clientFilePath := filepath.Join(filepath.Dir(path), "logs", "Client.txt")
-			return clientFilePath, nil
+				clientFilePath := filepath.Join(filepath.Dir(path), "logs", "Client.txt")
+				return clientFilePath, nil
+			}
 		}
 
 		if err := windows.Process32Next(snapshot, &procEntry); err != nil {
